@@ -2,109 +2,82 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include <memory>
-#include <string>
+using namespace std;
 
-class Base
-{
+class Base {
 protected:
     int value;
 
 public:
-    Base() : value(rand() % 100)
-    {
-        std::cout << "Вызван конструктор базового класса. Значение: " << value << std::endl;
+    Base() : value(rand() % 100) {}
+    
+    Base(const Base& other) : value(other.value) {}
+    
+    virtual void showInfo() {
+        cout << "Base(простой вывод значения): " << value << endl;
     }
-
-    virtual ~Base()
-    {
-        std::cout << "Вызван деструктор базового класса. Значение: " << value << std::endl;
-    }
-
-    virtual void showInfo() const
-    {
-        std::cout << "Базовый класс со значением: " << value << std::endl;
-    }
-
-    virtual Base *clone() const
-    {
-        return new Base(*this);
-    }
+    
+    virtual ~Base() {}
 };
 
-class Derived : public Base
-{
-    std::string name;
-
+class Derived : public Base {
 public:
-    Derived() : name("Объект-" + std::to_string(rand() % 1000))
-    {
-        std::cout << "Вызван конструктор производного класса. Имя: " << name << std::endl;
-    }
-
-    ~Derived() override
-    {
-        std::cout << "Вызван деструктор производного класса. Имя: " << name << std::endl;
-    }
-
-    void showInfo() const override
-    {
-        std::cout << "Производный класс со значением: " << value << " и именем: " << name << std::endl;
-    }
-
-    Base *clone() const override
-    {
-        return new Derived(*this);
+    Derived() : Base() {}
+    
+    Derived(const Derived& other) : Base(other) {}
+    
+    void showInfo() override {
+        cout << "Derived(вывод значения * -1): " << value * -1 << endl;
     }
 };
 
-class Storage
-{
-    std::vector<std::unique_ptr<Base>> objects;
-
-public:
-    void add(Base *obj)
-    {
-        objects.push_back(std::unique_ptr<Base>(obj));
+void add(vector<Base*>& storage, Base* obj) {
+    if (dynamic_cast<Derived*>(obj)) {
+        storage.push_back(new Derived(*dynamic_cast<Derived*>(obj)));
+    } else {
+        storage.push_back(new Base(*obj));
     }
+}
 
-    size_t size() const
-    {
-        return objects.size();
-    }
-
-    void showAll() const
-    {
-        for (const auto &obj : objects)
-        {
-            obj->showInfo();
-        }
-    }
-};
-
-int main()
-{
-    srand(static_cast<unsigned>(time(nullptr)));
-    Storage storage;
-
-    const int numObjects = 5;
-    std::cout << "\nСоздание объектов:\n";
-    for (int i = 0; i < numObjects; ++i)
-    {
-        Base *obj;
-        if (rand() % 2 == 0)
-        {
+int main() {
+    srand(time(0));
+    vector<Base*> storage;
+    vector<Base*> tempObjects;
+    
+    cout << "Создание объектов:" << endl;
+    for(int i = 0; i < 10; i++) {
+        int randomNum = rand() % 100;
+        Base* obj;
+        
+        if(randomNum % 2 == 0) {
             obj = new Base();
-        }
-        else
-        {
+            cout << "Создан Base" << endl;
+        } else {
             obj = new Derived();
+            cout << "Создан Derived" << endl;
         }
-        storage.add(obj->clone());
+        
+        tempObjects.push_back(obj);
+    }
+    
+    for(auto obj : tempObjects) {
+        add(storage, obj);
+    }
+    
+    cout << "\nДемонстрация поведения:" << endl;
+    for(int i = 0; i < storage.size(); i++) {
+        cout << "Объект " << i + 1 << ": ";
+        storage[i]->showInfo();
+    }
+    
+    for(auto obj : tempObjects) {
         delete obj;
     }
-
-    storage.showAll();
-
+    tempObjects.clear();
+    
+    for(auto obj : storage) {
+        delete obj;
+    }
+    storage.clear();
     return 0;
 }
