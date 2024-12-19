@@ -13,8 +13,8 @@ public:
     
     Base(const Base& other) : value(other.value) {}
     
-    virtual void showBehavior() {
-        cout << "Base(простой вывод значения): " << value << endl;
+    virtual void showInfo() {
+        cout << "Base(Вывод значения): " << value << endl;
     }
     
     virtual ~Base() {}
@@ -26,7 +26,7 @@ public:
     
     Derived(const Derived& other) : Base(other) {}
     
-    void showBehavior() override {
+    void showInfo() override {
         cout << "Derived(вывод значения * -1): " << value * -1 << endl;
     }
 };
@@ -41,7 +41,6 @@ void add(vector<Base*>& storage, Base* obj) {
 
 int main() {
     srand(time(0));
-    
     vector<Base*> storage;
     vector<Base*> tempObjects;
     
@@ -68,7 +67,7 @@ int main() {
     cout << "\nДемонстрация поведения:" << endl;
     for(int i = 0; i < storage.size(); i++) {
         cout << "Объект " << i + 1 << ": ";
-        storage[i]->showBehavior();
+        storage[i]->showInfo();
     }
     
     for(auto obj : tempObjects) {
