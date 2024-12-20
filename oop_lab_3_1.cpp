@@ -54,7 +54,7 @@ T *createObject(string n, int i)
 }
 int main()
 {
-    setlocale(LC_ALL, "Russian"); // для русского языка в консоли
+    setlocale(LC_ALL, "Russian"); 
     srand(static_cast<unsigned>(time(0)));
     // создаем вектор указателей на базовый класс
     vector<Detail *> storage;
